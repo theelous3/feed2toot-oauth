@@ -1,12 +1,12 @@
 ### Feed2toot-oauth
 
-Feed2toot automatically parses rss feeds, identifies new posts and posts them on the [Mastodon](https://mastodon.social) social network.
-For the full documentation, [read it online](https://feed2toot.readthedocs.io/en/latest/).
+Feed2toot automatically parses rss feeds, identifies new posts and posts them on the [Mastodon](https://mastodon.social) social network. It also works with gotosocial and presumably any other mastodon-like.
+
+For the full documentation, clone and read locally under docs/source.
 
 If you like Feed2toot, you can tip to support the development on ko-fi - no signup required:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F2F21OVNKF)
-
 
 
 ### Quick Install
