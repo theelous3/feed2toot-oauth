@@ -18,8 +18,6 @@ If you like Feed2toot, you can tip to support the development on ko-fi - no sign
         (.venv) $ pip install feed2toot-oauth
 
 * Install Feed2toot from sources for development or local edits
-  *(see the installation guide for full details
-  [Installation Guide](http://feed2toot.readthedocs.io/en/latest/install.html))*
 
         $ git clone https://github.com/theelous3/feed2toot-oauth.git
         $ cd feed2toot-oauth
