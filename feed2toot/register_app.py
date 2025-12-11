@@ -95,9 +95,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     print(f"Registering app '{opts.name}' for Feed2toot")
     print(f"Client credentials file: {clientcredfile}")
     print(f"User credentials file:   {usercredfile}\n")
-    print("Checking/Creating ./creds directory")
 
+    print("Checking/Creating required dirs .creds/ and .state/ - done\n")
     makedirs("creds", exist_ok=True)
+    makedirs("state", exist_ok=True)
 
     instance = input("Instance URL (e.g. https://social.example.org): ").strip()
     instance = _validate_instance(instance)
