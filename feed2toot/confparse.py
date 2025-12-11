@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Get values of the configuration file'''
+"""Get values of the configuration file"""
 
 # standard library imports
 from configparser import SafeConfigParser
@@ -28,24 +28,26 @@ from feed2toot.confparsers.rss.urilist import parseurilist
 from feed2toot.confparsers.rss.addtags import parseaddtags
 from feed2toot.confparsers.rss.tootmaxlen import parsetootmaxlen
 
+
 class ConfParse:
-    '''ConfParse class'''
+    """ConfParse class"""
+
     def __init__(self, clioptions):
-        '''Constructor of the ConfParse class'''
+        """Constructor of the ConfParse class"""
         self.clioptions = clioptions
-        self.tweetformat = ''
-        self.stringsep = ','
+        self.tweetformat = ""
+        self.stringsep = ","
         self.confs = []
         self.main()
 
     def main(self):
-        '''Main of the ConfParse class'''
+        """Main of the ConfParse class"""
         for pathtoconfig in self.clioptions.configs:
             options = {}
             # read the configuration file
             config = SafeConfigParser()
             if not config.read(os.path.expanduser(pathtoconfig)):
-                sys.exit('Could not read config file')
+                sys.exit("Could not read config file")
             ####################
             # feedparser section
             ####################
@@ -54,19 +56,21 @@ class ConfParse:
             # the rss section
             ###########################
             self.tweetformat = parsetoot(config)
-            options['tootmaxlen'] = parsetootmaxlen(config)
+            options["tootmaxlen"] = parsetootmaxlen(config)
             #################################################
             # pattern and patter_case_sensitive format option
             #################################################
-            options['patterns'], options['patternscasesensitive'] = parsepattern(config)
+            options["patterns"], options["patternscasesensitive"] = parsepattern(config)
             #################################################
             # lock file options
             #################################################
-            options['lockfile'], options['locktimeout'] = parselock(self.clioptions.lockfile, self.clioptions.locktimeout, config)
+            options["lockfile"], options["locktimeout"] = parselock(
+                self.clioptions.lockfile, self.clioptions.locktimeout, config
+            )
             ###############################
             # addtags option, default: True
             ###############################
-            options['addtags'] = parseaddtags(config)
+            options["addtags"] = parseaddtags(config)
             ###################
             # ignore_ssl option
             ###################
@@ -79,24 +83,35 @@ class ConfParse:
             ############
             # uri option
             ############
-            if config.has_option('rss', 'uri') or self.clioptions.rss_uri:
-                options['rss_uri'], feed, feedname, options['nopatternurinoglobalpattern'] = parseuri(config, self.clioptions.rss_uri, feeds, ignore_ssl)
+            if config.has_option("rss", "uri") or self.clioptions.rss_uri:
+                (
+                    options["rss_uri"],
+                    feed,
+                    feedname,
+                    options["nopatternurinoglobalpattern"],
+                ) = parseuri(config, self.clioptions.rss_uri, feeds, ignore_ssl)
             else:
-                if config.has_option('rss', 'no_uri_pattern_no_global_pattern'):
-                    options['nopatternurinoglobalpattern'] = config.getboolean('rss', 'no_uri_pattern_no_global_pattern')
+                if config.has_option("rss", "no_uri_pattern_no_global_pattern"):
+                    options["nopatternurinoglobalpattern"] = config.getboolean(
+                        "rss", "no_uri_pattern_no_global_pattern"
+                    )
             ###########################
             # the cache section
             ###########################
-            options['cachefile'], options['cache_limit'] = parsecache(self.clioptions.cachefile, config)
+            options["cachefile"], options["cache_limit"] = parsecache(
+                self.clioptions.cachefile, config
+            )
             ###########################
             # the hashtaglist section
             ###########################
-            options['hashtaglist'] = parsehashtaglist(self.clioptions.hashtaglist, config)
-            options['notagsintoot'] = parsenotagsintoot(config)
+            options["hashtaglist"] = parsehashtaglist(
+                self.clioptions.hashtaglist, config
+            )
+            options["notagsintoot"] = parsenotagsintoot(config)
             ###########################
             # the media section
             ###########################
-            options['media'] = parsemedia(config)
+            options["media"] = parsemedia(config)
             ###########################
             # the plugins section
             ###########################
@@ -107,9 +122,24 @@ class ConfParse:
             if feeds:
                 self.confs.append((options, config, self.tweetformat, feeds, plugins))
             else:
-                self.confs.append((options, config, self.tweetformat, [{'feed': feed, 'patterns': [], 'rssobject': '', 'feedname': feedname}], plugins))
+                self.confs.append(
+                    (
+                        options,
+                        config,
+                        self.tweetformat,
+                        [
+                            {
+                                "feed": feed,
+                                "patterns": [],
+                                "rssobject": "",
+                                "feedname": feedname,
+                            }
+                        ],
+                        plugins,
+                    )
+                )
 
     @property
     def confvalues(self):
-        '''Return the values of the different configuration files'''
+        """Return the values of the different configuration files"""
         return self.confs

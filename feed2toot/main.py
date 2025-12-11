@@ -29,31 +29,32 @@ from feed2toot.plugins import activate_plugins
 from feed2toot.rss import populate_rss
 from feed2toot.sortentries import sort_entries
 
+
 class Main:
-    '''Main class of Feed2toot'''
+    """Main class of Feed2toot"""
 
     def __init__(self):
         self.main()
 
     def setup_logging(self, options):
         if options.syslog:
-            sl = logging.handlers.SysLogHandler(address='/dev/log')
-            sl.setFormatter(logging.Formatter('feed2toot[%(process)d]: %(message)s'))
+            sl = logging.handlers.SysLogHandler(address="/dev/log")
+            sl.setFormatter(logging.Formatter("feed2toot[%(process)d]: %(message)s"))
             # convert syslog argument to a numeric value
             loglevel = getattr(logging, options.syslog.upper(), None)
             if not isinstance(loglevel, int):
-                raise ValueError('Invalid log level: %s' % loglevel)
+                raise ValueError("Invalid log level: %s" % loglevel)
             sl.setLevel(loglevel)
-            logging.getLogger('').addHandler(sl)
-            logging.debug('configured syslog level %s' % loglevel)
-        logging.getLogger('').setLevel(logging.DEBUG)
+            logging.getLogger("").addHandler(sl)
+            logging.debug("configured syslog level %s" % loglevel)
+        logging.getLogger("").setLevel(logging.DEBUG)
         sh = logging.StreamHandler()
         sh.setLevel(options.log_level.upper())
-        logging.getLogger('').addHandler(sh)
-        logging.debug('configured stdout level %s' % sh.level)
+        logging.getLogger("").addHandler(sh)
+        logging.debug("configured stdout level %s" % sh.level)
 
     def main(self):
-        '''The main function'''
+        """The main function"""
         clip = CliParse()
         clioptions = clip.options
         self.setup_logging(clioptions)
@@ -67,23 +68,27 @@ class Main:
             feeds = conf[3]
             plugins = conf[4]
             # check the logfile and logtimeout
-            lockfile = LockFile(options['lockfile'], options['locktimeout'])
+            lockfile = LockFile(options["lockfile"], options["locktimeout"])
             # create link to the persistent list
             cache = FeedCache(options)
             severalwordshashtags = extract_hashtags_from_list(options)
             # reverse feed entries because most recent one should be sent as the last one in Mastodon
             for feed in feeds:
                 # store the patterns by rss
-                if 'patterns' in feed:
-                    patterns = feed['patterns']
-                entries = feed['feed']['entries'][0:clioptions.limit]
+                if "patterns" in feed:
+                    patterns = feed["patterns"]
+                entries = feed["feed"]["entries"][0 : clioptions.limit]
                 entries.reverse()
                 # --rss-sections option: print rss sections and exit
                 if clioptions.rsssections:
                     if entries:
-                        print('The following sections are available in this RSS feed: {}'.format([j for j in entries[0]]))
+                        print(
+                            "The following sections are available in this RSS feed: {}".format(
+                                [j for j in entries[0]]
+                            )
+                        )
                     else:
-                        print('Could not parse the section of the rss feed')
+                        print("Could not parse the section of the rss feed")
                         # release the lock file
                     lockfile.release()
                     sys.exit(0)
@@ -94,19 +99,40 @@ class Main:
                     rss = populate_rss(entry)
                     rss = build_hashtags(entry, rss, options, severalwordshashtags)
                     # parse tweetfomat to elements
-                    elements = re.findall(r"\{(.*?)\}",tweetformat)
+                    elements = re.findall(r"\{(.*?)\}", tweetformat)
                     # strip : from elements to allow string formating, eg. {title:.20}
-                    for i,s in enumerate(elements):
-                         if s.find(':'):
-                             elements[i] = s.split(':')[0]
-                    fe = FilterEntry(elements, entry, options, feed['patterns'], feed['rssobject'], feed['feedname'])
+                    for i, s in enumerate(elements):
+                        if s.find(":"):
+                            elements[i] = s.split(":")[0]
+                    fe = FilterEntry(
+                        elements,
+                        entry,
+                        options,
+                        feed["patterns"],
+                        feed["rssobject"],
+                        feed["feedname"],
+                    )
                     entrytosend = fe.finalentry
                     if entrytosend:
-                        finaltweet = build_message(entrytosend, tweetformat, rss, options['tootmaxlen'], options['notagsintoot'])
+                        finaltweet = build_message(
+                            entrytosend,
+                            tweetformat,
+                            rss,
+                            options["tootmaxlen"],
+                            options["notagsintoot"],
+                        )
                         if clioptions.dryrun:
                             send_message_dry_run(config, entrytosend, finaltweet)
                         else:
-                            send_message(config, clioptions, options, entrytosend, finaltweet, cache, rss)
+                            send_message(
+                                config,
+                                clioptions,
+                                options,
+                                entrytosend,
+                                finaltweet,
+                                cache,
+                                rss,
+                            )
                             # plugins
                             if plugins and entrytosend:
                                 activate_plugins(plugins, finaltweet)
