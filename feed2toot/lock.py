@@ -28,16 +28,32 @@ class LockFile:
                         timeout=locktimeout
                     )
                 )
-                locktime = datetime.datetime.strptime(lfcontent, self.lfdateformat)
-                if locktime < (datetime.datetime.now() - ltimeout):
-                    # remove the lock file
-                    logging.debug("Found an expired lock file")
+                if not lfcontent:
+                    logging.warning("Found an empty lock file. Recreating it.")
                     self.release()
                     self.create_lock()
                 else:
-                    # quit because another feed2toot process is running
-                    logging.debug("Found a valid lock file. Exiting immediately.")
-                    sys.exit(0)
+                    try:
+                        locktime = datetime.datetime.strptime(
+                            lfcontent, self.lfdateformat
+                        )
+                    except ValueError:
+                        logging.warning(
+                            "Found an invalid lock file timestamp '%s'. Recreating it.",
+                            lfcontent,
+                        )
+                        self.release()
+                        self.create_lock()
+                    else:
+                        if locktime < (datetime.datetime.now() - ltimeout):
+                            # remove the lock file
+                            logging.debug("Found an expired lock file")
+                            self.release()
+                            self.create_lock()
+                        else:
+                            # quit because another feed2toot process is running
+                            logging.debug("Found a valid lock file. Exiting immediately.")
+                            sys.exit(0)
         else:
             # no lock file. Creating one
             self.create_lock()
